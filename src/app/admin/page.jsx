@@ -1,8 +1,8 @@
 export default function Admin() {
   return (
     <div>
-      <h1>Users</h1>
-      <p>Users page content</p>
+      <h1>Admin Panel</h1>
+      <p>Admin page content</p>
     </div>
   )
 }
