@@ -1,10 +1,12 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useSessionStore } from "../stores/useSessionStore"
 
 export function useSession() {
   const { session, setSession } = useSessionStore()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -34,20 +36,37 @@ export function useSession() {
         body: JSON.stringify(credentials),
       })
 
-      if (!res.ok) {
-        throw new Error("Failed to sign in")
+      const data = await res.json()
+
+      if (data.error) {
+        return {
+          error: data.error,
+        }
       }
 
-      const data = await res.json()
       setSession(data)
+
+      return {
+        session: data,
+      }
     } catch (err) {
       console.error("Erreur lors de la connexion", err)
       setSession(null)
     }
   }
 
-  const signout = () => {
+  const signout = async () => {
+    const res = await fetch("/api/auth/logout", {
+      method: "GET",
+    })
+
+    if (!res.ok) {
+      console.error("Erreur lors de la déconnexion")
+      return
+    }
+
     setSession(null)
+    router.push("/")
   }
 
   return { session, signin, signout }
