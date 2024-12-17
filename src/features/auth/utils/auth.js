@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs"
-import { jwtVerify } from "jose"
+import { base64url, jwtVerify, SignJWT } from "jose"
+
+const secretKey = base64url.decode(process.env.JWT_SECRET, "utf-8")
 
 export const getSession = (token) => {
   if (!token) {
@@ -7,22 +9,22 @@ export const getSession = (token) => {
   }
 
   try {
-    return jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET))
+    return jwtVerify(token, secretKey)
   } catch (err) {
     return null
   }
 }
 
-export const createSession = (user) =>
-  sign(
-    {
-      exp: Math.floor(Date.now() / 1000) - 30, //Date.now() / 1000 + 60 * 60, // 1 hour from now
-      id: user.id,
-      username: user.username,
-      role: user.role,
-    },
-    new TextEncoder().encode(process.env.JWT_SECRET)
-  )
+export const createSession = async (user) =>
+  await new SignJWT({
+    id: user.id,
+    username: user.username,
+    role: user.role,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("1h")
+    .sign(secretKey)
 
 export const isPasswordMatch = (password, hashedPassword) =>
   bcrypt.compareSync(password, hashedPassword)

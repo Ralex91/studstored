@@ -1,6 +1,7 @@
 import { createSession, isPasswordMatch } from "@/features/auth/utils/auth"
 import { loginSchema } from "@/features/auth/utils/schemas"
 import prisma from "@/lib/db"
+import { cookies } from "next/headers"
 
 export const POST = async (req) => {
   let rawData
@@ -38,5 +39,15 @@ export const POST = async (req) => {
     return Response.json({ error: "Invalid credentials" }, { status: 401 })
   }
 
-  return Response.json({ token: createSession(user) })
+  const cookieStore = await cookies()
+  const newSession = await createSession(user)
+
+  cookieStore.set("token", newSession, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60, // 1 hour
+  })
+
+  return Response.json({ token: newSession })
 }
