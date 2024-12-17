@@ -5,11 +5,11 @@ export const GET = async () => {
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value
 
-  const session = getSession(token)
+  const session = await getSession(token)
 
   if (!session) {
     return Response.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  return Response.json(session)
+  return Response.json(session.payload)
 }

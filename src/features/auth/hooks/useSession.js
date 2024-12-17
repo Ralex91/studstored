@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react"
+"use client"
+
+import { useEffect } from "react"
+import { useSessionStore } from "../stores/useSessionStore"
 
 export function useSession() {
-  const [session, setSession] = useState(null)
+  const { session, setSession } = useSessionStore()
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -10,7 +13,6 @@ export function useSession() {
 
         if (!res.ok) {
           setSession(null)
-
           return
         }
 
@@ -22,7 +24,31 @@ export function useSession() {
     }
 
     fetchSession()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return { session }
+  const signin = async (credentials) => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(credentials),
+      })
+
+      if (!res.ok) {
+        throw new Error("Failed to sign in")
+      }
+
+      const data = await res.json()
+      setSession(data)
+    } catch (err) {
+      console.error("Erreur lors de la connexion", err)
+      setSession(null)
+    }
+  }
+
+  const signout = () => {
+    setSession(null)
+  }
+
+  return { session, signin, signout }
 }
