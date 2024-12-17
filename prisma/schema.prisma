@@ -23,6 +23,7 @@ enum Role {
 model User {
   id           String @id @default(cuid())
   name         String
+  username     String @unique
   hashPassword String
   role         Role   @default(PROFESSOR)
 }
@@ -57,7 +58,7 @@ model Professor {
   lastName  String
   firstName String
   createdAt DateTime @default(now())
-  classes   Class[]
+  classes   Class[] 
 }
 
 model Registration {
