@@ -44,10 +44,10 @@ export async function middleware(request) {
     const session = await getSession(token)
 
     if (!session) {
-      console.log("Unauthorized")
       if (matchedRoute.json) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
       }
+
       return NextResponse.redirect(new URL("/login", request.url))
     }
 
@@ -59,6 +59,7 @@ export async function middleware(request) {
         if (matchedRoute.json) {
           return NextResponse.json({ error: "Forbidden" }, { status: 403 })
         }
+
         return NextResponse.redirect(new URL("/forbidden", request.url))
       }
     }
