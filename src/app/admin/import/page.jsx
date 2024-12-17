@@ -25,6 +25,7 @@ export default function Import() {
       formData.append("file", fileData)
       formData.append("importType", importType)
 
+      console.log("formData", formData)
       const response = await fetch("/api/admin/import", {
         method: "POST",
         body: formData,
