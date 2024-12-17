@@ -34,12 +34,19 @@ export function useSession() {
         body: JSON.stringify(credentials),
       })
 
-      if (!res.ok) {
-        throw new Error("Failed to sign in")
+      const data = await res.json()
+
+      if (data.error) {
+        return {
+          error: data.error,
+        }
       }
 
-      const data = await res.json()
       setSession(data)
+
+      return {
+        session: data,
+      }
     } catch (err) {
       console.error("Erreur lors de la connexion", err)
       setSession(null)

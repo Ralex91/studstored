@@ -21,6 +21,7 @@ import { useSession } from "@/features/auth/hooks/useSession"
 import { loginSchema } from "@/features/auth/utils/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 const LoginPage = () => {
@@ -34,17 +35,25 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   })
 
+  const [error, setError] = useState(null)
+
   if (session) {
     router.push("/dashboard")
   }
 
   const { control, handleSubmit } = form
 
-  const onSubmit = (data) => {
-    signin({
+  const onSubmit = async (data) => {
+    setError(null)
+
+    const { error } = await signin({
       username: data.username,
       password: data.password,
     })
+
+    if (error) {
+      setError(error)
+    }
   }
 
   return (
@@ -83,6 +92,8 @@ const LoginPage = () => {
                 </FormItem>
               )}
             />
+
+            <p className="text-destructive">{error}</p>
 
             <div className="flex justify-end pt-4">
               <Button type="submit">Connexion</Button>
