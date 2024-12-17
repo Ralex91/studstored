@@ -3,7 +3,11 @@ import { NextResponse } from "next/server"
 import { pathToRegexp } from "path-to-regexp"
 import { getSession } from "./features/auth/utils/auth"
 
-const exemptRoutes = ["/api/auth{/*path}"]
+const exemptRoutes = [
+  {
+    path: "/api/auth{/*path}",
+  },
+]
 
 const protectedRoutes = [
   {
@@ -16,15 +20,8 @@ const protectedRoutes = [
   },
 ]
 
-const isExemptRoute = (url) => {
-  return exemptRoutes.some((route) => {
-    const regex = pathToRegexp(route)
-    return regex.regexp.test(url)
-  })
-}
-
-const isProtectedRoute = (url) => {
-  return protectedRoutes.find(({ path }) => {
+const matchRoute = (url, routes) => {
+  return routes.find(({ path }) => {
     const regex = pathToRegexp(path)
     return regex.regexp.test(url)
   })
@@ -33,11 +30,11 @@ const isProtectedRoute = (url) => {
 export async function middleware(request) {
   const { pathname } = new URL(request.url)
 
-  if (isExemptRoute(pathname)) {
+  if (matchRoute(pathname, exemptRoutes)) {
     return NextResponse.next()
   }
 
-  const matchedRoute = isProtectedRoute(pathname)
+  const matchedRoute = matchRoute(pathname, protectedRoutes)
 
   if (matchedRoute) {
     const token = request.cookies.get("token")?.value
