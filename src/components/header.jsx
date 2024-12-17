@@ -1,23 +1,21 @@
 import Link from "next/link"
+import { Button } from "./ui/button"
 
 export default function Header() {
   return (
-    <header className="bg-blue-500 p-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-white text-3xl font-bold">StudStored</h1>
+    <header className="bg-background p-2 border border-input outline-gray-800">
+      <div className="container mx-auto max-w-6xl flex justify-between items-center">
+        <h1 className="text-xl font-bold">
+          Stud
+          <span className="text-primary italic font-black">Stored</span>
+        </h1>
 
-        <div className="space-x-4">
-          <Link
-            href="/admin"
-            className="text-white hover:text-gray-300 transition-colors"
-          >
-            Admin
+        <div className="space-x-2">
+          <Link href="/admin">
+            <Button variant="ghost">Admin</Button>
           </Link>
-          <Link
-            href="/admin/import"
-            className="text-white hover:text-gray-300 transition-colors"
-          >
-            Import
+          <Link href="/admin/import">
+            <Button variant="ghost">Import</Button>
           </Link>
         </div>
 
@@ -26,7 +24,7 @@ export default function Header() {
             href="/auth/login"
             className="text-white hover:text-gray-300 transition-colors"
           >
-            Login
+            <Button>Login</Button>
           </Link>
         </div>
       </div>
