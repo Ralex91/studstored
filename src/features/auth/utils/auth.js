@@ -18,6 +18,7 @@ export const getSession = (token) => {
 export const createSession = async (user) =>
   await new SignJWT({
     id: user.id,
+    name: user.name,
     username: user.username,
     role: user.role,
   })

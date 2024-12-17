@@ -1,6 +1,8 @@
+import Header from "@/components/header"
+import { Toaster } from "@/components/ui/toaster"
+import TanstackProvider from "@/providers/TanStackProvider"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
-import Header from "@/components/header"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,8 +25,15 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        {children}
+        <TanstackProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1 mx-auto max-w-6xl w-full py-4 flex flex-col">
+              {children}
+            </main>
+          </div>
+          <Toaster />
+        </TanstackProvider>
       </body>
     </html>
   )

@@ -1,20 +1,20 @@
 "use client"
-import { useState } from "react"
-import { useMutation } from "@tanstack/react-query"
+import { NewStudentsList } from "@/components/datas/newStudentsList"
+import { NewTeachersList } from "@/components/datas/newTeachersList"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import YearSelector from "@/components/ui/yearSelector"
 import {
   Select,
-  SelectItem,
   SelectContent,
+  SelectGroup,
+  SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectGroup,
 } from "@/components/ui/select"
-import { NewTeachersList } from "@/components/datas/newTeachersList"
-import { NewStudentsList } from "@/components/datas/newStudentsList"
+import YearSelector from "@/components/ui/yearSelector"
+import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
 
 export default function Import() {
   const [file, setFile] = useState(null)
@@ -94,7 +94,7 @@ export default function Import() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
+    <div className="flex justify-center items-center">
       <div>
         {(teachers.length < 1 || students.length < 1) && (
           <div className="grid w-full max-w-sm items-center gap-1.5">
