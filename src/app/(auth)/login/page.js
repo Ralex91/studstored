@@ -20,13 +20,11 @@ import { Input } from "@/components/ui/input"
 import { useSession } from "@/features/auth/hooks/useSession"
 import { loginSchema } from "@/features/auth/utils/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 const LoginPage = () => {
-  const router = useRouter()
-  const { session, signin } = useSession()
+  const { signin } = useSession()
   const form = useForm({
     defaultValues: {
       username: "",
@@ -36,10 +34,6 @@ const LoginPage = () => {
   })
 
   const [error, setError] = useState(null)
-
-  if (session) {
-    router.push("/dashboard")
-  }
 
   const { control, handleSubmit } = form
 
