@@ -49,5 +49,7 @@ export const POST = async (req) => {
     maxAge: 60 * 60, // 1 hour
   })
 
-  return Response.json({ token: newSession })
+  const { hashPassword, ...userWithoutPassword } = user
+
+  return Response.json(userWithoutPassword)
 }
