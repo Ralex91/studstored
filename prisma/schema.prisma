@@ -15,15 +15,16 @@ datasource db {
 
 enum Role {
   ADMIN
+  MAYOR
+  DIRECTOR
   PROFESSOR
 }
 
 model User {
-  id           String   @id @default(cuid())
-  createdAt    DateTime @default(now())
+  id           String @id @default(cuid())
   name         String
   hashPassword String
-  roles        Role[]   @default([PROFESSOR])
+  role         Role   @default(PROFESSOR)
 }
 
 model Class {
