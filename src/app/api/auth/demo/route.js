@@ -9,7 +9,7 @@ export const GET = async () => {
 
   let demoUser = await prisma.user.findFirst({
     where: {
-      name: "Demo User",
+      username: "demo",
     },
   })
 
@@ -19,6 +19,7 @@ export const GET = async () => {
         username: "demo",
         name: "Demo User",
         role: Role.ADMIN,
+        username: "demo",
         hashPassword: await bcrypt.hash("password", 10),
       },
     })
