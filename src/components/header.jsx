@@ -1,27 +1,30 @@
 "use client"
 
 import { useSession } from "@/features/auth/hooks/useSession"
-import { LogOut } from "lucide-react"
+import { LogOut, User } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export default function Header() {
-  const router = useRouter()
   const { session, signout } = useSession()
 
   return (
-    <header className="bg-background p-2 border border-input outline-gray-800">
+    <header className="bg-background p-2 border border-input">
       <div className="mx-auto max-w-6xl flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold">
-          Stud
-          <span className="text-primary font-extrabold">Stored</span>
+        <Link
+          href="/"
+          className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-800"
+        >
+          StudStored
         </Link>
 
         <div className="space-x-2">
           <Link href="/admin">
             <Button variant="ghost">Admin</Button>
+          </Link>
+          <Link href="/admin/classes">
+            <Button variant="ghost">Classes</Button>
           </Link>
           <Link href="/admin/import">
             <Button variant="ghost">Import</Button>
@@ -41,7 +44,9 @@ export default function Header() {
           </Popover>
         ) : (
           <Link href="/login">
-            <Button>Login</Button>
+            <Button>
+              Se connecter <User />
+            </Button>
           </Link>
         )}
       </div>
