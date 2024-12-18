@@ -74,7 +74,7 @@ export default function UsersList({ users }) {
   })
 
   return (
-    <div className="rounded-md border w-[650px]">
+    <div className="flex justify-center items-center space-x-40 mt-12 rounded-md border w-full">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

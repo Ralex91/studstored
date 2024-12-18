@@ -26,6 +26,9 @@ export default function Header() {
           <Link href="/admin/classes">
             <Button variant="ghost">Classes</Button>
           </Link>
+          <Link href="/admin/users">
+            <Button variant="ghost">Users</Button>
+          </Link>
           <Link href="/admin/import">
             <Button variant="ghost">Import</Button>
           </Link>

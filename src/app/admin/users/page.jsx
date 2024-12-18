@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import UsersList from "@/features/users/components/usersList"
 import NewUser from "@/features/users/components/newUser"
+import CreateNewUser from "@/features/users/components/createNewUser"
 
 export default function Users() {
   const {
@@ -30,12 +31,14 @@ export default function Users() {
   }, [initialUsersList])
 
   if (error) return <div>Error: {error.message}</div>
-  if (isLoading) return <div>Loading...</div>
 
   return (
-    <div className="w-full flex justify-center items-center space-x-40 mt-12">
-      <NewUser setUsersList={setUsersList} />
-      {usersList?.length > 0 && <UsersList users={usersList} />}
+    <div>
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="text-3xl mb-4 font-semibold">Liste des utilisateurs</h1>
+        <CreateNewUser setUsersList={setUsersList} />
+      </div>
+      <UsersList users={usersList} />
     </div>
   )
 }
