@@ -3,12 +3,10 @@
 import { useSession } from "@/features/auth/hooks/useSession"
 import { LogOut } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 
 export default function Header() {
-  const router = useRouter()
   const { session, signout } = useSession()
 
   return (
@@ -22,6 +20,9 @@ export default function Header() {
         <div className="space-x-2">
           <Link href="/admin">
             <Button variant="ghost">Admin</Button>
+          </Link>
+          <Link href="/admin/classes">
+            <Button variant="ghost">Classes</Button>
           </Link>
           <Link href="/admin/import">
             <Button variant="ghost">Import</Button>
