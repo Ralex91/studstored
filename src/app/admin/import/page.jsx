@@ -96,7 +96,7 @@ export default function Import() {
   return (
     <div className="flex justify-center items-center">
       <div>
-        {(teachers.length < 1 || students.length < 1) && (
+        {!teachers.length > 0 && !students.length > 0 && (
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="file">Importer des élèves, enseignants</Label>
             <Input id="file" type="file" onChange={handleFileChange} />

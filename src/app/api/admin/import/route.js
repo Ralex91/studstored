@@ -1,4 +1,4 @@
-import { generateRandomPassword } from "@/features/auth/utils/auth"
+import { generateRandomPassword } from "@/features/import/utils/import"
 import prisma from "@/lib/db"
 import bcrypt from "bcrypt"
 
@@ -78,7 +78,7 @@ export async function POST(req) {
       .slice(0, 2)
       .toLowerCase()}${lastName.toLowerCase()}`
     const plainPassword = generateRandomPassword()
-    const hashedPassword = await bcrypt.hash(plainPassword, 10)
+    const hashedPassword = await bcrypt.hash(plainPassword, 12)
 
     newProfessors.push({
       userData: {
