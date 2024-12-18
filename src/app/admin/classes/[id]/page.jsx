@@ -1,18 +1,12 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/useSession"
+import RegistrationRow from "@/features/classes/components/RegistrationRow"
 import { useClass } from "@/features/classes/hooks/useClass"
 import { Role } from "@prisma/client"
-import { Ellipsis, Info, RotateCcw, Trash2 } from "lucide-react"
+import { Info } from "lucide-react"
 import { use } from "react"
 
 const ClassPage = ({ params }) => {
@@ -96,48 +90,9 @@ const ClassPage = ({ params }) => {
             ))}
 
           {!isLoading &&
-            classData?.students.map((registration, index) => {
-              const student = registration.student
-              return (
-                <Card
-                  key={index}
-                  className="px-4 py-2 grid grid-cols-[1fr_1fr_auto] items-center group hover:bg-accent/20"
-                >
-                  <p>
-                    {student.firstName} {student.lastName}
-                  </p>
-                  <div>
-                    <Badge
-                      variant={
-                        registration.redoubler ? "destructive" : "secondary"
-                      }
-                    >
-                      {registration.redoubler ? "Redouble" : "Passe l'année"}
-                    </Badge>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="outline-none">
-                      <Ellipsis className="w-5 h-5" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>
-                        <RotateCcw />
-                        {registration.redoubler
-                          ? "Ne redouble plus"
-                          : "Redoubler"}
-                      </DropdownMenuItem>
-                      {session &&
-                        [Role.ADMIN, Role.DIRECTOR].includes(session?.role) && (
-                          <DropdownMenuItem className="text-destructive">
-                            <Trash2 />
-                            Supprimer
-                          </DropdownMenuItem>
-                        )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </Card>
-              )
-            })}
+            classData?.students.map((registration, index) => (
+              <RegistrationRow key={index} registration={registration} />
+            ))}
         </div>
       </div>
     </div>
