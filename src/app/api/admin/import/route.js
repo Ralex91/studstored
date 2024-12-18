@@ -1,4 +1,4 @@
-import { generateRandomPassword } from "@/lib/utils"
+import { generateRandomPassword } from "@/features/auth/utils/auth"
 import prisma from "@/lib/db"
 import bcrypt from "bcrypt"
 
