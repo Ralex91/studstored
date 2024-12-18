@@ -1,6 +1,6 @@
 "use client"
-import { NewStudentsList } from "@/components/datas/newStudentsList"
-import { NewTeachersList } from "@/components/datas/newTeachersList"
+import { NewStudentsList } from "@/features/import/components/newStudentsList"
+import { NewTeachersList } from "@/features/import/components/newTeachersList"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import YearSelector from "@/components/ui/yearSelector"
+import YearSelector from "@/features/import/components/yearSelector"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 
@@ -96,7 +96,7 @@ export default function Import() {
   return (
     <div className="flex justify-center items-center">
       <div>
-        {(teachers.length < 1 || students.length < 1) && (
+        {!teachers.length > 0 && !students.length > 0 && (
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="file">Importer des élèves, enseignants</Label>
             <Input id="file" type="file" onChange={handleFileChange} />
