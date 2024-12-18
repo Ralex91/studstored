@@ -10,7 +10,7 @@ export default function Header() {
   const { session, signout } = useSession()
 
   return (
-    <header className="bg-background p-2 border border-input outline-gray-800">
+    <header className="bg-background p-2 border border-input">
       <div className="mx-auto max-w-6xl flex justify-between items-center">
         <Link
           href="/"

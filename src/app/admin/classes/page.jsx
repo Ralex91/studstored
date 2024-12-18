@@ -9,7 +9,7 @@ const ClassListPage = () => {
   const { data: classesData, isLoading, isError } = useClasses()
 
   return (
-    <div className="">
+    <div>
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-3xl mb-4 font-semibold">Liste des classes</h1>
         <CreateNewClass
