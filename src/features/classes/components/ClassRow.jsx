@@ -9,7 +9,7 @@ const ClassRow = ({ data }) => {
         <div>
           <p className="text-lg group-hover:text-primary">{data.name}</p>
           <p className="text-sm text-muted-foreground">
-            Année : {data.schoolYearId}
+            Année : {data.schoolYear.year}
           </p>
         </div>
         <ChevronRight className="group-hover:text-primary group-hover:translate-x-1 transition-all" />

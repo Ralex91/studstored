@@ -2,7 +2,11 @@ import { createClassSchema } from "@/features/classes/utils/schemas"
 import prisma from "@/lib/db"
 
 export const GET = async () => {
-  const classes = await prisma.class.findMany()
+  const classes = await prisma.class.findMany({
+    include: {
+      schoolYear: true,
+    },
+  })
   const years = await prisma.schoolYear.findMany()
   const professors = await prisma.professor.findMany()
 
