@@ -1,4 +1,3 @@
-import { $Enums } from "@prisma/client"
 import bcrypt from "bcryptjs"
 import { base64url, jwtVerify, SignJWT } from "jose"
 
@@ -30,7 +29,3 @@ export const createSession = async (user) =>
 
 export const isPasswordMatch = (password, hashedPassword) =>
   bcrypt.compareSync(password, hashedPassword)
-
-export function generateRandomPassword() {
-  return crypto.randomBytes(8).toString("base64").slice(0, 10)
-}
