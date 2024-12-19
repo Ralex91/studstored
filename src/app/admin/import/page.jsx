@@ -154,7 +154,7 @@ export default function Import() {
             </Button>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mt-9">
           <div>
             {teachers.length > 0 && <NewTeachersList teachers={teachers} />}
           </div>

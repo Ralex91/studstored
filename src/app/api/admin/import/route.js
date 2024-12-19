@@ -4,7 +4,6 @@ import bcrypt from "bcrypt"
 
 export async function POST(req) {
   const formData = await req.formData()
-
   const importType = formData.get("importType")
   const file = formData.get("file")
   const yearId = formData.get("yearId")
@@ -29,26 +28,54 @@ export async function POST(req) {
     })
   }
 
-  const data = await file.text()
-  const lines = data.split("\n").filter((line) => line.trim() !== "")
+  const lines = (await file.text()).split("\n").filter((line) => line.trim())
+  const processedData = processFileData(lines.slice(1))
 
-  let createdProfessors = []
-  let createdStudents = []
-  let teacherNames = []
-  let students = []
+  const createdProfessors = importType.includes("teachers")
+    ? await processProfessors(processedData.teacherNames)
+    : []
 
-  lines.slice(1).forEach((line) => {
+  const createdStudents = importType.includes("students")
+    ? await processStudents(processedData.students, yearId)
+    : []
+
+  return new Response(
+    JSON.stringify({
+      message: "Importation terminée avec succès.",
+      createdProfessors: createdProfessors.map(
+        ({ professorData, plainPassword }) => ({
+          username: `edu_${professorData.firstName
+            .slice(0, 2)
+            .toLowerCase()}${professorData.lastName.toLowerCase()}`,
+          ...professorData,
+          plainPassword,
+        })
+      ),
+      createdStudents,
+    }),
+    { status: 200 }
+  )
+}
+
+function processFileData(lines) {
+  const teacherNames = new Set()
+  const students = []
+
+  for (const line of lines) {
     const [level, lastName, firstName, birthDate, professorName] = line
       .split(",")
       .map((item) => item.trim())
-    if (importType.includes("teachers") && professorName)
-      teacherNames.push(professorName)
-    if (importType.includes("students"))
+
+    if (professorName) teacherNames.add(professorName)
+    if (firstName && lastName) {
       students.push({ level, lastName, firstName, birthDate, professorName })
-  })
+    }
+  }
 
-  teacherNames = [...new Set(teacherNames)].filter(Boolean)
+  return { teacherNames: Array.from(teacherNames), students }
+}
 
+async function processProfessors(teacherNames) {
   const existingProfessors = await prisma.professor.findMany({
     where: {
       OR: teacherNames.map((name) => {
@@ -64,6 +91,8 @@ export async function POST(req) {
   )
 
   const newProfessors = []
+  const createUsers = []
+  const createProfessors = []
 
   for (const fullName of teacherNames) {
     const [lastName, firstName] = fullName.split(" ")
@@ -71,8 +100,9 @@ export async function POST(req) {
       !firstName ||
       !lastName ||
       existingProfessorMap.has(`${firstName} ${lastName}`)
-    )
+    ) {
       continue
+    }
 
     const username = `edu_${firstName
       .slice(0, 2)
@@ -80,116 +110,197 @@ export async function POST(req) {
     const plainPassword = generateRandomPassword()
     const hashedPassword = await bcrypt.hash(plainPassword, 12)
 
+    createUsers.push({
+      name: `${firstName} ${lastName}`,
+      username,
+      hashPassword: hashedPassword,
+      role: "PROFESSOR",
+    })
+
+    createProfessors.push({ firstName, lastName })
+
     newProfessors.push({
-      userData: {
-        name: `${firstName} ${lastName}`,
-        username,
-        hashPassword: hashedPassword,
-        role: "PROFESSOR",
-      },
-      professorData: { firstName, lastName },
+      userData: createUsers[createUsers.length - 1],
+      professorData: createProfessors[createProfessors.length - 1],
       plainPassword,
     })
   }
 
   if (newProfessors.length > 0) {
     await prisma.$transaction([
-      ...newProfessors.map(({ userData }) =>
-        prisma.user.create({ data: userData })
-      ),
-      ...newProfessors.map(({ professorData }) =>
-        prisma.professor.create({ data: professorData })
-      ),
+      prisma.user.createMany({ data: createUsers }),
+      prisma.professor.createMany({ data: createProfessors }),
     ])
-
-    createdProfessors = newProfessors.map(
-      ({ professorData, plainPassword }) => ({
-        username: `edu_${professorData.firstName
-          .slice(0, 2)
-          .toLowerCase()}${professorData.lastName.toLowerCase()}`,
-        ...professorData,
-        plainPassword,
-      })
-    )
   }
 
-  const classMap = new Map()
-  const studentMap = new Map()
+  return newProfessors
+}
 
-  const existingClasses = await prisma.class.findMany({
-    where: { schoolYearId: yearId },
-    select: { id: true, name: true, professorId: true },
-  })
+async function processStudents(students, yearId) {
+  const [existingClasses, existingStudents, existingProfessors] =
+    await Promise.all([
+      prisma.class.findMany({
+        where: { schoolYearId: yearId },
+        select: { id: true, name: true, professorId: true },
+      }),
+      prisma.student.findMany({
+        where: {
+          OR: students.map((s) => ({
+            firstName: s.firstName,
+            lastName: s.lastName,
+          })),
+        },
+        select: { id: true, firstName: true, lastName: true },
+      }),
+      prisma.professor.findMany({
+        where: {
+          OR: Array.from(new Set(students.map((s) => s.professorName)))
+            .map((name) => {
+              const [lastName, firstName] = name.split(" ")
+              return { firstName, lastName }
+            })
+            .filter((n) => n.firstName && n.lastName),
+        },
+        select: { id: true, firstName: true, lastName: true },
+      }),
+    ])
 
-  existingClasses.forEach((c) => classMap.set(c.name, c))
-
-  const existingStudents = await prisma.student.findMany({
-    where: {
-      OR: students.map((s) => ({
-        firstName: s.firstName,
-        lastName: s.lastName,
-      })),
-    },
-    select: { id: true, firstName: true, lastName: true },
-  })
-
-  existingStudents.forEach((s) =>
-    studentMap.set(`${s.firstName} ${s.lastName}`, s.id)
+  const classMap = new Map(existingClasses.map((c) => [c.name, c]))
+  const studentMap = new Map(
+    existingStudents.map((s) => [`${s.firstName} ${s.lastName}`, s.id])
   )
+  const professorMap = new Map(
+    existingProfessors.map((p) => [`${p.firstName} ${p.lastName}`, p.id])
+  )
+
+  const createdStudents = []
+  const registrationsToCreate = []
+  const classesToCreate = []
+  const studentsToCreate = []
+  const classesToUpdate = []
 
   for (const student of students) {
     const { level, lastName, firstName, professorName } = student
-    if (!lastName || !firstName || !level || !professorName) continue
+    if (!lastName || !firstName || !level) continue
 
     const studentKey = `${firstName} ${lastName}`
-    let studentId = studentMap.get(studentKey)
-
-    if (!studentId) {
-      const newStudent = await prisma.student.create({
-        data: { firstName, lastName },
-      })
-      studentId = newStudent.id
-      studentMap.set(studentKey, studentId)
+    if (!studentMap.has(studentKey)) {
+      studentsToCreate.push({ firstName, lastName })
     }
 
-    let currentClass = classMap.get(level)
-    if (!currentClass) {
-      currentClass = await prisma.class.create({
-        data: { name: level, schoolYearId: yearId },
+    if (!classMap.has(level) && professorName) {
+      const [professorLastName, professorFirstName] = professorName.split(" ")
+      const professorId = professorMap.get(
+        `${professorFirstName} ${professorLastName}`
+      )
+
+      classesToCreate.push({
+        name: level,
+        schoolYearId: yearId,
+        professorId: professorId || null,
       })
-      classMap.set(level, currentClass)
-    }
-
-    const [professorLastName, professorFirstName] = professorName.split(" ")
-    const professor = existingProfessors.find(
-      (p) =>
-        p.firstName === professorFirstName && p.lastName === professorLastName
-    )
-
-    if (professor && !currentClass.professorId) {
-      await prisma.class.update({
-        where: { id: currentClass.id },
-        data: { professorId: professor.id },
+      classMap.set(level, {
+        name: level,
+        id: null,
+        professorId: professorId || null,
       })
     }
-
-    await prisma.registration.upsert({
-      where: { studentId_classId: { studentId, classId: currentClass.id } },
-      update: {},
-      create: { studentId, classId: currentClass.id, redoubler: false },
-    })
-
-    createdStudents.push({ firstName, lastName, level, professorName })
   }
 
-  return new Response(
-    JSON.stringify({
-      message: "Importation terminée avec succès.",
-      createdProfessors,
-      createdStudents,
-    }),
-    { status: 200 }
-  )
+  await prisma.$transaction(async (prisma) => {
+    if (classesToCreate.length > 0) {
+      await prisma.class.createMany({
+        data: classesToCreate,
+      })
+
+      const createdClasses = await prisma.class.findMany({
+        where: {
+          name: { in: classesToCreate.map((c) => c.name) },
+          schoolYearId: yearId,
+        },
+      })
+      createdClasses.forEach((c) => classMap.set(c.name, c))
+    }
+
+    if (studentsToCreate.length > 0) {
+      await prisma.student.createMany({
+        data: studentsToCreate,
+      })
+
+      const newStudents = await prisma.student.findMany({
+        where: {
+          OR: studentsToCreate.map((s) => ({
+            firstName: s.firstName,
+            lastName: s.lastName,
+          })),
+        },
+        select: { id: true, firstName: true, lastName: true },
+      })
+
+      newStudents.forEach((s) =>
+        studentMap.set(`${s.firstName} ${s.lastName}`, s.id)
+      )
+    }
+
+    for (const student of students) {
+      const { level, professorName } = student
+      const existingClass = classMap.get(level)
+
+      if (existingClass && !existingClass.professorId && professorName) {
+        const [professorLastName, professorFirstName] = professorName.split(" ")
+        const professorId = professorMap.get(
+          `${professorFirstName} ${professorLastName}`
+        )
+
+        if (
+          professorId &&
+          !classesToUpdate.some((c) => c.id === existingClass.id)
+        ) {
+          classesToUpdate.push({
+            id: existingClass.id,
+            professorId,
+          })
+        }
+      }
+    }
+
+    for (const classToUpdate of classesToUpdate) {
+      await prisma.class.update({
+        where: { id: classToUpdate.id },
+        data: { professorId: classToUpdate.professorId },
+      })
+    }
+
+    for (const student of students) {
+      const { level, firstName, lastName } = student
+      const studentId = studentMap.get(`${firstName} ${lastName}`)
+      const classId = classMap.get(level)?.id
+
+      if (studentId && classId) {
+        registrationsToCreate.push({
+          studentId,
+          classId,
+          redoubler: false,
+        })
+      }
+
+      createdStudents.push({
+        firstName,
+        lastName,
+        level,
+        professorName: student.professorName,
+      })
+    }
+
+    if (registrationsToCreate.length > 0) {
+      await prisma.registration.createMany({
+        data: registrationsToCreate,
+        skipDuplicates: true,
+      })
+    }
+  })
+
+  return createdStudents
 }
 
 // ----------- DEV ONLY ------------
