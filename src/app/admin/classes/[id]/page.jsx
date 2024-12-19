@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useSession } from "@/features/auth/hooks/useSession"
+import AddStudent from "@/features/classes/components/AddStudent"
 import RegistrationRow from "@/features/classes/components/RegistrationRow"
 import { useClass } from "@/features/classes/hooks/useClass"
 import { Role } from "@prisma/client"
@@ -77,6 +78,7 @@ const ClassPage = ({ params }) => {
               <p className="text-sm text-muted-foreground">
                 Ajoutez un nouvel étudiant à la classe.
               </p>
+              <AddStudent />
             </Card>
           )}
         </div>
