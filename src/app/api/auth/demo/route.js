@@ -17,6 +17,7 @@ export const GET = async () => {
     demoUser = await prisma.user.create({
       data: {
         name: "Demo User",
+        username: "demo",
         role: Role.ADMIN,
         hashPassword: await bcrypt.hash("password", 10),
       },
