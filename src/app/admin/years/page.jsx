@@ -5,7 +5,11 @@ import YearsList from "@/features/years/components/yearsList"
 import { useQuery } from "@tanstack/react-query"
 
 export default function YearsPage() {
-  const { data: yearsList = [], refetch } = useQuery({
+  const {
+    data: yearsList = [],
+    refetch,
+    isLoading,
+  } = useQuery({
     queryKey: ["years"],
     queryFn: async () => {
       const response = await fetch("/api/years")
@@ -17,10 +21,16 @@ export default function YearsPage() {
     initialData: [],
   })
 
+  if (isLoading) {
+    return <div>Chargement...</div>
+  }
+
   return (
     <div className="flex mt-28 justify-center min-h-screen space-x-8">
       <div>
-        <NewYears setYearsList={refetch} />
+        {!yearsList?.find((year) => year.isActive === true) && (
+          <NewYears setYearsList={refetch} />
+        )}
       </div>
       <div>
         <YearsList yearsList={yearsList} setYearsList={refetch} />

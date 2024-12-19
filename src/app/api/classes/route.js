@@ -7,7 +7,11 @@ export const GET = async () => {
       schoolYear: true,
     },
   })
-  const years = await prisma.schoolYear.findMany()
+  const years = await prisma.schoolYear.findMany({
+    where: {
+      isActive: true,
+    },
+  })
   const professors = await prisma.professor.findMany()
 
   return Response.json({

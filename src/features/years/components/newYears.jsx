@@ -30,7 +30,6 @@ export default function NewYears({ setYearsList }) {
   const form = useForm({
     defaultValues: {
       year: "",
-      isActive: false,
     },
     resolver: zodResolver(yearSchema),
   })
@@ -95,19 +94,6 @@ export default function NewYears({ setYearsList }) {
                   <FormLabel htmlFor="year">Année scolaire</FormLabel>
                   <FormControl>
                     <Input id="year" type="text" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="isActive"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="isActive">Active</FormLabel>
-                  <FormControl>
-                    <Input id="isActive" type="checkbox" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
