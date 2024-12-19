@@ -15,23 +15,22 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "@/components/hooks/use-toast"
-import { userSchema } from "@/features/users/utils/shemas"
+import { teacherSchema } from "@/features/teachers/utils/shemas"
 
-export default function NewUser({ setUsersList, onSubmitValid }) {
+export default function NewTeacher({ setTeachersList, onSubmitValid }) {
   const [error, setError] = useState(null)
 
   const form = useForm({
     defaultValues: {
-      username: "edu_",
-      name: "",
-      role: "PROFESSOR",
+      firstName: "",
+      lastName: "",
     },
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(teacherSchema),
   })
   const { control, handleSubmit } = form
 
-  const createUser = async (data) => {
-    const response = await fetch("/api/admin/users", {
+  const createTeacher = async (data) => {
+    const response = await fetch("/api/admin/teachers", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,19 +38,20 @@ export default function NewUser({ setUsersList, onSubmitValid }) {
       body: JSON.stringify(data),
     })
     if (!response.ok) {
-      throw new Error("Erreur lors de la création de l'utilisateur")
+      throw new Error("Erreur lors de la création de l'enseignant")
     }
     return response.json()
   }
 
   const mutation = useMutation({
-    mutationFn: createUser,
-    onSuccess: (newUser) => {
+    mutationFn: createTeacher,
+    onSuccess: (newTeacher) => {
       setError(null)
-      setUsersList((prevUsersList) => [...prevUsersList, newUser])
+      setTeachersList((prevTeachersList) => [...prevTeachersList, newTeacher])
+      console.log("newTeacher", newTeacher)
       toast({
-        title: "Utilisateur créé avec succès",
-        description: `L'utilisateur ${newUser.username} a été ajouté. Veuillez noter le mot de passe généré: ${newUser.password} et le fournir à l'utilisateur. Il ne sera pas possible de le récupérer ultérieurement.`,
+        title: "Enseignant créé avec succès",
+        description: `L'enseignant ${newTeacher.firstName} ${newTeacher.lastName} a été ajouté.`,
       })
       onSubmitValid()
     },
@@ -78,12 +78,12 @@ export default function NewUser({ setUsersList, onSubmitValid }) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={control}
-          name="username"
+          name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="username">Nom d'utilisateur</FormLabel>
+              <FormLabel htmlFor="firstName">Prénom</FormLabel>
               <FormControl>
-                <Input id="username" type="text" {...field} />
+                <Input id="firstName" type="text" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,34 +91,12 @@ export default function NewUser({ setUsersList, onSubmitValid }) {
         />
         <FormField
           control={control}
-          name="name"
+          name="lastName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="name">Nom</FormLabel>
+              <FormLabel htmlFor="lastName">Nom</FormLabel>
               <FormControl>
-                <Input id="name" type="text" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="role"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel htmlFor="role">Rôle</FormLabel>
-              <FormControl>
-                <select
-                  id="role"
-                  {...field}
-                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                >
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="MAYOR">MAYOR</option>
-                  <option value="DIRECTOR">DIRECTOR</option>
-                  <option value="PROFESSOR">PROFESSOR</option>
-                </select>
+                <Input id="lastName" type="text" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
