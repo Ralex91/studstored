@@ -30,7 +30,7 @@ export default function YearsList({ yearsList, setYearsList }) {
       toast({
         title: "Mise à jour réussie",
         description: `L'année ${updatedYear.year} est maintenant ${
-          updatedYear.isActive ? "active" : "inactive"
+          updatedYear.isActive ? "active" : "cloturée"
         }.`,
       })
     } catch (error) {
@@ -58,17 +58,21 @@ export default function YearsList({ yearsList, setYearsList }) {
               <div className="mr-10">
                 <h3 className="text-lg font-semibold">{year.year}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {year.isActive ? "Active" : "Inactive"}
+                  {year.isActive ? "Active" : "cloturée"}
                 </p>
               </div>
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  onClick={() => toggleYearActiveState(year.id, year.isActive)}
-                >
-                  {year.isActive ? "Désactiver" : "Activer"}
-                </Button>
-              </div>
+              {year.isActive && (
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      toggleYearActiveState(year.id, year.isActive)
+                    }
+                  >
+                    Cloturer
+                  </Button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
