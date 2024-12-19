@@ -18,6 +18,7 @@ export const GET = async () => {
       data: {
         username: "demo",
         name: "Demo User",
+        username: "demo",
         role: Role.ADMIN,
         username: "demo",
         hashPassword: await bcrypt.hash("password", 10),
